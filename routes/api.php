@@ -15,7 +15,7 @@ use App\Http\Controllers\Admin\BlogController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+//
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
