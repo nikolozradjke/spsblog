@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 
-class BlogController extends BaseController
+class BlogController extends Controller
 {
     public $data = [];
     private $model;
@@ -19,8 +19,6 @@ class BlogController extends BaseController
 
     public function __construct()
     {
-        parent::__construct();
-
         $this->model = new Blog();
         $this->main_columns = $this->model->getTableColumns(self::$main_table);
         $this->translate_columns = $this->model->getTableColumns(self::$translate_table);
