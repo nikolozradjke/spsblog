@@ -25,4 +25,14 @@ class File
 
         return null;
     }
+
+    public function removeFile($fileName){
+        if(file_exists(public_path($fileName)))
+        {
+            unlink(public_path($fileName));
+            return true;
+        }
+
+        return false;
+    }
 }

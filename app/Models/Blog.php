@@ -18,19 +18,30 @@ class Blog extends Model
     private static $translate_table = 'blog_translates';
     private static $translates_class = 'App\Models\BlogTranslate';
     private static $current_class = __CLASS__;
+    private static $gallery = 'App\Models\BlogImage';
 
     public function content(){
         return $this->hasMany(BlogTranslate::class, 'parent_id', 'id');
     }
 
+    public function gallery(){
+        return $this->hasMany(BlogImage::class, 'parent_id', 'id');
+    }
+
     public function getItem($id, $lang){
         return $this->where('id', $id)
                     ->select('id', 'status', 'image', 'video')
-                    ->with(['content' => function($query) use($lang){
-                        $query->when($lang, function ($q) use($lang){
-                            $q->where('lang', $lang);
-                        });
-                    }])
+                    ->with(
+                        [
+                            'content' => function($query) use($lang){
+                                $query->when($lang, function ($q) use($lang){
+                                    $q->where('lang', $lang);
+                                });
+                            },
+                            'gallery' => function($query){
+                                $query->select('id', 'image', 'parent_id');
+                            }
+                        ])
                     ->first();
     }
 
@@ -39,9 +50,30 @@ class Blog extends Model
                         return $query->where('status', 1);
                     })
                     ->with(['content' => function($query) use($lang){
-                        return $query->select('parent_id', 'title', 'short_description');
+                        $query->select('parent_id', 'title', 'short_description', 'lang')
+                            ->where('lang', $lang);
                     }])
                     ->latest()
                     ->paginate($count);
+    }
+
+    public function deleteImage(){
+        $file_remove = app(File::class)->removeFile($this->image);
+        $this->image = null;
+
+        if($file_remove){
+            return $this->save();
+        }
+
+        return false;
+    }
+
+    public function deleteGalleryImage($request){
+        $gallery = self::$gallery::where('id', $request->image_id)->where('parent_id', $this->id)->first();
+        if($gallery && app(File::class)->removeFile($gallery->image)){
+            return $gallery->delete();
+        }
+
+        return false;
     }
 }

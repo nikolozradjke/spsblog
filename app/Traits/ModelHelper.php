@@ -72,6 +72,20 @@ trait ModelHelper
 
                 self::$translates_class::insert($storable_data);
             }
+            //Todo gallery
+            if(property_exists(__CLASS__, 'gallery') && $request->gallery){
+                $gallery = [];
+                foreach($request->gallery as $image){
+                    $destination = strtolower(substr(strrchr(self::$current_class, "\\"), 1));
+                    $file = app(File::class)->uploadFile($image, $destination);
+
+                    $gallery[] = [
+                        'parent_id' => $item->id,
+                        'image' => $file
+                    ];
+                }
+                self::$gallery::insert($gallery);
+            }
             return true;
         }
 

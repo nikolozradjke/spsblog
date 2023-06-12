@@ -27,8 +27,10 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::get('/columns', [BlogController::class, 'getColumns']);
             Route::post('/store', [BlogController::class, 'store']);
             Route::get('/show/{blog}', [BlogController::class, 'show']);
-            Route::post('/update/{blog}', [BlogController::class, 'update']);
+            Route::put('/update/{blog}', [BlogController::class, 'update']);
             Route::delete('/delete/{blog}', [BlogController::class, 'delete']);
+            Route::delete('/delete-image/{blog}', [BlogController::class, 'deleteImage']);
+            Route::delete('/delete-gallery-image/{blog}', [BlogController::class, 'deleteGalleryImage']);
         });
     });
 });
