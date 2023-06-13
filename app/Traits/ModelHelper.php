@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Helper\File;
+use App\Models\MenuCategory;
 
 trait ModelHelper
 {
@@ -16,18 +17,29 @@ trait ModelHelper
 
         $not_needed_columns = [
             'id',
-            'parent_id',
+            'sort',
             'lang',
+            'endpoint',
             'created_at',
             'updated_at'
         ];
 
-        return array_diff($all_columns, $not_needed_columns);
+        if(str_contains($table, 'translate')){
+            $not_needed_columns[] = 'parent_id';
+        }
+
+        return array_values(array_diff($all_columns, $not_needed_columns));
     }
 
     public function add($request){
         $item = new self::$current_class;
-        $request_keys = $request->except(['_token','translates','image']);
+        $request_keys = $request->except([
+            '_token',
+            'translates',
+            'image',
+            'sort',
+            'endpoint'
+        ]);
 
         $table_columns = $this->getTableColumns(self::$main_table);
 
@@ -36,6 +48,21 @@ trait ModelHelper
             {
                 $item->$key = $value;
             }
+        }
+
+        if(self::$main_table == 'menus' && $request->category_id){
+            $menu_cat = MenuCategory::find($request->category_id);
+            if($menu_cat && !is_null($menu_cat->front_endpoint) && !$request->model_id){
+                abort(response()->json([
+                    'message' => "შეავსეთ ყველა აუცილებელი ველი!"
+                ], 400));
+            }
+
+            $item->endpoint = $menu_cat->front_endpoint . "?category_id=$request->model_id";
+        }
+        
+        if(property_exists(self::$current_class, 'sortable')){
+            $item->sort = $this->addSort();
         }
 
         if ($request->hasFile('image'))
@@ -47,7 +74,7 @@ trait ModelHelper
         }
 
         if($item->save()){
-            if(property_exists(__CLASS__, 'translates_class')){
+            if(property_exists(self::$current_class, 'translates_class')){
                 $translates = $request->translates;
                 $translate_columns = $this->getTableColumns(self::$translate_table);
 
@@ -73,7 +100,7 @@ trait ModelHelper
                 self::$translates_class::insert($storable_data);
             }
             //Todo gallery
-            if(property_exists(__CLASS__, 'gallery') && $request->gallery){
+            if(property_exists(self::$current_class, 'gallery') && $request->gallery){
                 $gallery = [];
                 foreach($request->gallery as $image){
                     $destination = strtolower(substr(strrchr(self::$current_class, "\\"), 1));
@@ -93,7 +120,13 @@ trait ModelHelper
     }
 
     public function updateItem($request){
-        $request_keys = $request->except(['_token','translates','image']);
+        $request_keys = $request->except([
+            '_token',
+            'translates',
+            'image',
+            'sort',
+            'endpoint'
+        ]);
 
         $table_columns = $this->getTableColumns(self::$main_table);
 
@@ -102,6 +135,17 @@ trait ModelHelper
             {
                 $this->$key = $value;
             }
+        }
+
+        if(self::$main_table == 'menus' && $request->category_id){
+            $menu_cat = MenuCategory::find($request->category_id);
+            if($menu_cat && !is_null($menu_cat->front_endpoint) && !$request->model_id){
+                abort(response()->json([
+                    'message' => "შეავსეთ ყველა აუცილებელი ველი!"
+                ], 400));
+            }
+
+            $this->endpoint = $menu_cat->front_endpoint . "?category_id=$request->model_id";
         }
 
         if ($request->hasFile('image'))
@@ -113,7 +157,7 @@ trait ModelHelper
         }
 
         if($this->update()){
-            if(property_exists(__CLASS__, 'translates_class')){
+            if(property_exists(self::$current_class, 'translates_class')){
                 $translates = $request->translates;
                 $supported_langs = $this->getLocales();
 
@@ -124,7 +168,10 @@ trait ModelHelper
                         ->first()
                     )
                     {
-                        $item_content->update($translates[$lang]);
+                        foreach($translates[$lang] as $column => $content){
+                            $updatable[$lang][$column] = is_null($content) ? $translates['ka'][$column] : $content;
+                        }
+                        $item_content->update($updatable[$lang]);
                     }
                     else{
                         $storable_data[$key] = [

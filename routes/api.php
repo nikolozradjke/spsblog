@@ -1,9 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Client\BlogController as ClientBlogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +20,10 @@ use App\Http\Controllers\Admin\BlogController;
 //
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::group(['prefix' => 'blog'], function(){
+    Route::get('/', [ClientBlogController::class, 'index']);
+});
+
 Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -31,6 +37,25 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::delete('/delete/{blog}', [BlogController::class, 'delete']);
             Route::delete('/delete-image/{blog}', [BlogController::class, 'deleteImage']);
             Route::delete('/delete-gallery-image/{blog}', [BlogController::class, 'deleteGalleryImage']);
+
+            Route::group(['prefix' => 'category'], function(){
+                Route::get('/', [BlogCategoryController::class, 'index']);
+                Route::get('/columns', [BlogCategoryController::class, 'getColumns']);
+                Route::post('/store', [BlogCategoryController::class, 'store']);
+                Route::get('/show/{category}', [BlogCategoryController::class, 'show']);
+                Route::put('/update/{category}', [BlogCategoryController::class, 'update']);
+                Route::delete('/delete/{category}', [BlogCategoryController::class, 'delete']);
+            });
+        });
+
+        Route::group(['prefix' => 'menu'], function(){
+            Route::get('/', [MenuController::class, 'index']);
+            Route::get('/columns', [MenuController::class, 'getColumns']);
+            Route::get('/categories', [MenuController::class, 'getCategories']);
+            Route::post('/store', [MenuController::class, 'store']);
+            Route::get('/show/{menu}', [MenuController::class, 'show']);
+            Route::post('/update/{menu}', [MenuController::class, 'update']);
+            Route::delete('/delete/{menu}', [MenuController::class, 'delete']);
         });
     });
 });

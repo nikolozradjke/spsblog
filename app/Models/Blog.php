@@ -12,7 +12,7 @@ class Blog extends Model
 {
     use HasFactory, ModelHelper;
 
-    protected $fillable = ['status', 'image', 'video'];
+    protected $fillable = ['status', 'image', 'video', 'category_id'];
 
     private static $main_table = 'blogs';
     private static $translate_table = 'blog_translates';
@@ -30,7 +30,7 @@ class Blog extends Model
 
     public function getItem($id, $lang){
         return $this->where('id', $id)
-                    ->select('id', 'status', 'image', 'video')
+                    ->select('id', 'status', 'image', 'video', 'created_at')
                     ->with(
                         [
                             'content' => function($query) use($lang){
@@ -45,9 +45,12 @@ class Blog extends Model
                     ->first();
     }
 
-    public function getAll($lang = 'ka', $status = false, $count = 50){
+    public function getAll($lang = 'ka', $status = false, $category = false, $count = 50){
         return $this->when($status, function ($query){
                         return $query->where('status', 1);
+                    })
+                    ->when($category, function ($query) use($category){
+                        return $query->where('category_id', $category);
                     })
                     ->with(['content' => function($query) use($lang){
                         $query->select('parent_id', 'title', 'short_description', 'lang')
