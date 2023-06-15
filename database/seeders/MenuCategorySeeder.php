@@ -17,17 +17,30 @@ class MenuCategorySeeder extends Seeder
             [
                 'title' => 'მთავარი',
                 'endpoint' => null,
-                'front_endpoint' => null
+                'front_endpoint' => null,
+                'column' => null,
+                'multi_lang' => 0
             ],
             [
                 'title' => 'კონტაქტი',
                 'endpoint' => null,
-                'front_endpoint' => null
+                'front_endpoint' => null,
+                'column' => null,
+                'multi_lang' => 0
             ],
             [
                 'title' => 'სიახლეები',
                 'endpoint' => 'dashboard/blog/category',
-                'front_endpoint' => 'blog'
+                'front_endpoint' => 'blog',
+                'column' => 'model_id',
+                'multi_lang' => 0
+            ],
+            [
+                'title' => 'ტექსტური გვერდი',
+                'endpoint' => null,
+                'front_endpoint' => null,
+                'column' => 'text',
+                'multi_lang' => 1
             ]
         ];
 

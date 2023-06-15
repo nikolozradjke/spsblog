@@ -19,7 +19,7 @@ class File
         $extension = $file->getClientOriginalExtension();
         $fileName = mt_rand(11111, 99999) . time() . '.' . $extension;
 
-        if($path = $file->storeAs('public/'.$destination,$fileName)){
+        if($file->storeAs('public/'.$destination,$fileName)){
             return 'storage/' . $destination . '/' . $fileName;
         }
 

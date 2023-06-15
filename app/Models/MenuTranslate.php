@@ -13,6 +13,7 @@ class MenuTranslate extends Model
         'parent_id',
         'title',
         'meta_description',
+        'text',
         'lang'
     ];
 

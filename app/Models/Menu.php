@@ -2,15 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\MenuHelper;
 use App\Traits\ModelHelper;
 use App\Traits\Sortable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 
 class Menu extends Model
 {
-    use HasFactory, ModelHelper, Sortable;
+    use HasFactory, Sortable, MenuHelper;
+    use ModelHelper{
+            add as protected addHelper;
+            updateItem as protected updateHelper;
+        }
 
     protected $fillable = [
         'status',
@@ -26,6 +32,7 @@ class Menu extends Model
     private static $translates_class = 'App\Models\MenuTranslate';
     private static $current_class = __CLASS__;
     private static $sortable = true;
+    private static $optional_column = 'text';//ველი რომელიც არსებობს თარგმანების ცხრილში მაგრამ დამოკიდებულია მენიუს კატეგორიაზე
 
     public function content(){
         return $this->hasMany(MenuTranslate::class, 'parent_id', 'id');
@@ -37,6 +44,10 @@ class Menu extends Model
 
     public function children(){
         return $this->hasMany(__CLASS__, 'parent_id', 'id');
+    }
+
+    public function files(){
+        return $this->hasMany(MenuFile::class, 'parent_id', 'id');
     }
 
     public function getItem($id, $lang){
@@ -52,6 +63,11 @@ class Menu extends Model
                             'category',
                             'children' => function($query){
                                 $query->select('id', 'status', 'created_at', 'parent_id');
+                            },
+                            'files' => function($query) use($lang){
+                                $query->when($lang, function ($q) use($lang){
+                                    $q->where('lang', $lang);
+                                });
                             }
                         ])
                     ->first();
@@ -67,5 +83,23 @@ class Menu extends Model
                     }])
                     ->orderBy('sort', 'ASC')
                     ->get();
+    }
+
+    public function add($request){
+        $item = new self::$current_class;
+        $item->sort = $this->addSort();
+        
+        return $this->addHelper(
+            $request,
+            $item,
+            $this->categoryAction($request, $item)
+        );
+    }
+
+    public function updateItem($request){
+        return $this->updateHelper(
+            $request,
+            $this->categoryAction($request, $this)
+        );
     }
 }

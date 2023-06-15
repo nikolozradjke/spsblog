@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Helper\File;
-use App\Models\MenuCategory;
 
 trait ModelHelper
 {
@@ -20,6 +19,7 @@ trait ModelHelper
             'sort',
             'lang',
             'endpoint',
+            'text',
             'created_at',
             'updated_at'
         ];
@@ -31,8 +31,11 @@ trait ModelHelper
         return array_values(array_diff($all_columns, $not_needed_columns));
     }
 
-    public function add($request){
-        $item = new self::$current_class;
+    public function add($request, $item = null, $additional_data = null){
+        if(is_null($item)){
+            $item = new self::$current_class;
+        }   
+        
         $request_keys = $request->except([
             '_token',
             'translates',
@@ -48,21 +51,6 @@ trait ModelHelper
             {
                 $item->$key = $value;
             }
-        }
-
-        if(self::$main_table == 'menus' && $request->category_id){
-            $menu_cat = MenuCategory::find($request->category_id);
-            if($menu_cat && !is_null($menu_cat->front_endpoint) && !$request->model_id){
-                abort(response()->json([
-                    'message' => "შეავსეთ ყველა აუცილებელი ველი!"
-                ], 400));
-            }
-
-            $item->endpoint = $menu_cat->front_endpoint . "?category_id=$request->model_id";
-        }
-        
-        if(property_exists(self::$current_class, 'sortable')){
-            $item->sort = $this->addSort();
         }
 
         if ($request->hasFile('image'))
@@ -94,12 +82,16 @@ trait ModelHelper
                         }
                         $storable_data[$iterator][$column] = $content[$column];
                     }
+                    if(gettype($additional_data) == 'array'){
+                        foreach($additional_data as $column => $items){
+                            $storable_data[$iterator][$column] = isset($items[$lang_prefix]) ? $items[$lang_prefix] : $items['ka'];
+                        } 
+                    }
                     $iterator += 1;
                 }
 
                 self::$translates_class::insert($storable_data);
             }
-            //Todo gallery
             if(property_exists(self::$current_class, 'gallery') && $request->gallery){
                 $gallery = [];
                 foreach($request->gallery as $image){
@@ -119,7 +111,7 @@ trait ModelHelper
         return false;
     }
 
-    public function updateItem($request){
+    public function updateItem($request, $additional_data){
         $request_keys = $request->except([
             '_token',
             'translates',
@@ -127,7 +119,6 @@ trait ModelHelper
             'sort',
             'endpoint'
         ]);
-
         $table_columns = $this->getTableColumns(self::$main_table);
 
         foreach ($request_keys as $key => $value){
@@ -135,17 +126,6 @@ trait ModelHelper
             {
                 $this->$key = $value;
             }
-        }
-
-        if(self::$main_table == 'menus' && $request->category_id){
-            $menu_cat = MenuCategory::find($request->category_id);
-            if($menu_cat && !is_null($menu_cat->front_endpoint) && !$request->model_id){
-                abort(response()->json([
-                    'message' => "შეავსეთ ყველა აუცილებელი ველი!"
-                ], 400));
-            }
-
-            $this->endpoint = $menu_cat->front_endpoint . "?category_id=$request->model_id";
         }
 
         if ($request->hasFile('image'))
@@ -171,6 +151,14 @@ trait ModelHelper
                         foreach($translates[$lang] as $column => $content){
                             $updatable[$lang][$column] = is_null($content) ? $translates['ka'][$column] : $content;
                         }
+                        if(property_exists(self::$current_class, 'optional_column')){
+                            $updatable[$lang][self::$optional_column] = null;
+                            if(gettype($additional_data) == 'array'){
+                                foreach($additional_data as $column => $items){
+                                    $updatable[$lang][$column] = isset($items[$lang]) ? $items[$lang] : $items['ka'];
+                                } 
+                            }
+                        }
                         $item_content->update($updatable[$lang]);
                     }
                     else{
@@ -181,11 +169,28 @@ trait ModelHelper
                         foreach($translates[$lang] as $column => $content){
                             $storable_data[$key][$column] = is_null($content) ? $translates['ka'][$column] : $content;
                         }
+                        if(gettype($additional_data) == 'array'){
+                            foreach($additional_data as $column => $items){
+                                $storable_data[$key][$column] = isset($items[$lang]) ? $items[$lang] : $items['ka'];
+                            }
+                        }
                         self::$translates_class::insert($storable_data);
                     }
                 }
             }
+            if(property_exists(self::$current_class, 'gallery') && $request->gallery){
+                $gallery = [];
+                foreach($request->gallery as $image){
+                    $destination = strtolower(substr(strrchr(self::$current_class, "\\"), 1));
+                    $file = app(File::class)->uploadFile($image, $destination);
 
+                    $gallery[] = [
+                        'parent_id' => $this->id,
+                        'image' => $file
+                    ];
+                }
+                self::$gallery::insert($gallery);
+            }
             return true;
         }
         return false;

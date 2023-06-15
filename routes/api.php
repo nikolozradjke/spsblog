@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Client\BlogController as ClientBlogController;
+use App\Http\Controllers\Admin\FileUploadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +18,7 @@ use App\Http\Controllers\Client\BlogController as ClientBlogController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-//
+
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['prefix' => 'blog'], function(){
@@ -26,6 +27,7 @@ Route::group(['prefix' => 'blog'], function(){
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/file-upload', FileUploadController::class);
 
     Route::group(['prefix' => 'dashboard'], function(){
         Route::group(['prefix' => 'blog'], function(){

@@ -16,6 +16,8 @@ DB_DATABASE=
 DB_USERNAME=
 DB_PASSWORD=
 
+APP_URL=საიტის მისამართი
+
 
 გიტის ყველა პუშზე გასაშვები ბრძანებები:
 
