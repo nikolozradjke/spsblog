@@ -10,4 +10,6 @@ class BlogImage extends Model
     use HasFactory;
 
     protected $fillable = ['parent_id', 'image'];
+
+    public $timestamps = false;
 }

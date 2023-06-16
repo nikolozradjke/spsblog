@@ -56,7 +56,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::get('/categories', [MenuController::class, 'getCategories']);
             Route::post('/store', [MenuController::class, 'store']);
             Route::get('/show/{menu}', [MenuController::class, 'show']);
-            Route::post('/update/{menu}', [MenuController::class, 'update']);
+            Route::put('/update/{menu}', [MenuController::class, 'update']);
             Route::delete('/delete/{menu}', [MenuController::class, 'delete']);
         });
     });

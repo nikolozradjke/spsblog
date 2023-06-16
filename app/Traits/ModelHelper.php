@@ -37,7 +37,6 @@ trait ModelHelper
         }   
         
         $request_keys = $request->except([
-            '_token',
             'translates',
             'image',
             'sort',
@@ -50,6 +49,13 @@ trait ModelHelper
             if(in_array($key, $table_columns))
             {
                 $item->$key = $value;
+            }
+        }
+
+        if(property_exists(self::$current_class, 'date_columns')){
+            foreach(self::$date_columns as $column => $format){
+                if($request->$column)
+                $item->$column = date($format, strtotime($request->$column));
             }
         }
 
@@ -111,7 +117,7 @@ trait ModelHelper
         return false;
     }
 
-    public function updateItem($request, $additional_data){
+    public function updateItem($request, $additional_data = null){
         $request_keys = $request->except([
             '_token',
             'translates',

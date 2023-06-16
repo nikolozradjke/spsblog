@@ -14,8 +14,13 @@ return new class extends Migration
         Schema::create('blogs', function (Blueprint $table) {
             $table->id();
             $table->tinyInteger('status')->default(0);
+            $table->tinyInteger('slider')->default(0);
+            $table->date('slider_to')->nullable();
+            $table->tinyInteger('main_page')->default(0);
+            $table->bigInteger('category_id')->nullable();
             $table->string('image')->nullable();
             $table->string('video')->nullable();
+            $table->string('slug')->nullable();
             $table->timestamps();
         });
     }

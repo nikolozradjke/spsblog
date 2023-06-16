@@ -5,20 +5,30 @@ namespace App\Models;
 use App\Helper\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Schema;
 use App\Traits\ModelHelper;
 
 class Blog extends Model
 {
     use HasFactory, ModelHelper;
 
-    protected $fillable = ['status', 'image', 'video', 'category_id'];
+    protected $fillable = [
+        'slider',
+        'slider_to',
+        'main_page',
+        'status',
+        'image',
+        'video',
+        'category_id'
+    ];
 
     private static $main_table = 'blogs';
     private static $translate_table = 'blog_translates';
     private static $translates_class = 'App\Models\BlogTranslate';
     private static $current_class = __CLASS__;
     private static $gallery = 'App\Models\BlogImage';
+    private static $date_columns = [
+        'slider_to' => 'Y-m-d'
+    ];
 
     public function content(){
         return $this->hasMany(BlogTranslate::class, 'parent_id', 'id');

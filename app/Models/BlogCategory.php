@@ -9,7 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class BlogCategory extends Model
 {
-    use HasFactory, ModelHelper, Sortable;
+    use HasFactory, Sortable;
+    use ModelHelper{
+        add as protected addHelper;
+    }
 
     protected $fillable = ['status', 'image', 'video'];
 
@@ -47,5 +50,15 @@ class BlogCategory extends Model
                     }])
                     ->latest()
                     ->get();
+    }
+
+    public function add($request){
+        $item = new self::$current_class;
+        $item->sort = $this->addSort();
+        
+        return $this->addHelper(
+            $request,
+            $item
+        );
     }
 }

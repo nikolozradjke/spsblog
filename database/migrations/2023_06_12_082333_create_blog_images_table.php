@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id');
             $table->string('image');
             $table->foreign('parent_id')->references('id')->on('blogs')->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
