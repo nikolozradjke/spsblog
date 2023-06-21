@@ -87,6 +87,14 @@ class MenuController extends Controller
         return response()->json($this->data, 200);
     }
 
+    public function sort(Request $request){
+        if(!$this->model->sort($request)){
+            $this->data['message'] = 'დაფიქსირდა შეცდომა';
+        }
+
+        return response()->json($this->data, 200);
+    }
+
     public function delete(Menu $menu){
         if(!$menu->delete()){
             $this->data['message'] = 'დაფიქსირდა შეცდომა';

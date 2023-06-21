@@ -9,4 +9,15 @@ trait Sortable
 
         return $sort ? $sort + 1 : 1;
     }
+
+    public function sort($request){
+        foreach($request->data as $item){
+            $sortable = self::$current_class::where('id', $item['id'])->first();
+            if($sortable){
+                $sortable->update($item);
+            }
+        }
+
+        return true;
+    }
 }

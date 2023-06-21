@@ -57,6 +57,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::post('/store', [MenuController::class, 'store']);
             Route::get('/show/{menu}', [MenuController::class, 'show']);
             Route::put('/update/{menu}', [MenuController::class, 'update']);
+            Route::post('/sort', [MenuController::class, 'sort']);
             Route::delete('/delete/{menu}', [MenuController::class, 'delete']);
         });
     });
