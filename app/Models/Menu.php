@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use App\Interfaces\ModelColumns;
 use App\Traits\MenuHelper;
 use App\Traits\ModelHelper;
 use App\Traits\Sortable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 
-class Menu extends Model
+class Menu extends Model implements ModelColumns
 {
     use HasFactory, Sortable, MenuHelper;
     use ModelHelper{
@@ -27,18 +27,30 @@ class Menu extends Model
         'endpoint'
     ];
 
-    private static $main_table = 'menus';
-    private static $translate_table = 'menu_translates';
+    private $main_table = 'menus';
+    private $translate_table = 'menu_translates';
     private static $translates_class = 'App\Models\MenuTranslate';
     private static $current_class = __CLASS__;
     private static $sortable = true;
     private static $optional_column = 'text';//ველი რომელიც არსებობს თარგმანების ცხრილში მაგრამ დამოკიდებულია მენიუს კატეგორიაზე
 
-    public function content(){
+    public function getMainColumns()
+    {
+        return $this->getTableColumns($this->main_table);
+    }
+
+    public function getTranslateColumns()
+    {
+        return $this->getTableColumns($this->translate_table);
+    }
+
+    public function content()
+    {
         return $this->hasMany(MenuTranslate::class, 'parent_id', 'id');
     }
     
-    public function category(){
+    public function category()
+    {
         return $this->hasOne(MenuCategory::class, 'id', 'category_id');
     }
 
@@ -46,11 +58,13 @@ class Menu extends Model
         return $this->hasMany(__CLASS__, 'parent_id', 'id');
     }
 
-    public function files(){
+    public function files()
+    {
         return $this->hasMany(MenuFile::class, 'parent_id', 'id');
     }
 
-    public function getItem($id, $lang){
+    public function getItem($id, $lang)
+    {
         return $this->where('id', $id)
                     ->select('id', 'status', 'created_at')
                     ->with(
@@ -73,7 +87,8 @@ class Menu extends Model
                     ->first();
     }
 
-    public function getAll($lang = 'ka', $status = false){
+    public function getAll($lang = 'ka', $status = false)
+    {
         return $this->when($status, function ($query){
                         return $query->where('status', 1);
                     })
@@ -85,7 +100,8 @@ class Menu extends Model
                     ->get();
     }
 
-    public function add($request){
+    public function add($request)
+    {
         $item = new self::$current_class;
         $item->sort = $this->addSort();
         
@@ -96,7 +112,8 @@ class Menu extends Model
         );
     }
 
-    public function updateItem($request){
+    public function updateItem($request)
+    {
         return $this->updateHelper(
             $request,
             $this->categoryAction($request, $this)

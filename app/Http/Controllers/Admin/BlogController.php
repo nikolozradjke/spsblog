@@ -8,15 +8,10 @@ use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
-    public $data = [];
     private $model;
     private $main_columns;
     private $translate_columns;
-    private static $main_table = 'blogs';
-    private static $translate_table = 'blog_translates';
     private static bool $gallery = true;
-
-    protected $required_columns = ['image','title','description'];
 
     public function __construct()
     {
@@ -29,21 +24,23 @@ class BlogController extends Controller
         $this->data['message'] = 'Success';
     }
 
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $this->data['items'] = $this->model->getAll($lang = 'ka', $status = false, $request->count);
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function getColumns(){
-        $this->data['message'] = 'Success';
+    public function getColumns()
+    {
         $this->data['main_columns'] = $this->main_columns;
         $this->data['translate_columns'] = $this->translate_columns;
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $this->validate($request,[
             'translates.ka.title' => 'required',
             'translates.ka.description' => 'required',
@@ -54,20 +51,21 @@ class BlogController extends Controller
 
         if(!$insert)
         {
-            $this->data['message'] = 'დაფიქსირდა შეცდომა';
-            return response()->json($this->data, 500);
+            $this->error();
         }
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function show(Blog $blog){
+    public function show(Blog $blog)
+    {
         $this->data['item'] = $blog->getItem($blog->id, $lang = false);
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function update(Request $request, Blog $blog){
+    public function update(Request $request, Blog $blog)
+    {
         $this->validate($request,[
             'translates.ka.title' => 'required',
             'translates.ka.description' => 'required',
@@ -80,40 +78,40 @@ class BlogController extends Controller
 
         if(!$update)
         {
-            $this->data['message'] = 'დაფიქსირდა შეცდომა';
-            return response()->json($this->data, 500);
+            $this->error();
         }
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function delete(Blog $blog){
+    public function delete(Blog $blog)
+    {
         if(!$blog->delete()){
-            $this->data['message'] = 'დაფიქსირდა შეცდომა';
+            $this->error();
         }
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function deleteImage(Request $request, Blog $blog){
+    public function deleteImage(Request $request, Blog $blog)
+    {
         if(!$blog->deleteImage()){
-            $this->data['message'] = 'დაფიქსირდა შეცდომა';
-            return response()->json($this->data, 500);
+            $this->error();
         }
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 
-    public function deleteGalleryImage(Request $request, Blog $blog){
+    public function deleteGalleryImage(Request $request, Blog $blog)
+    {
         $this->validate($request,[
             'image_id' => 'required'
         ]);
 
         if(!$blog->deleteGalleryImage($request)){
-            $this->data['message'] = 'დაფიქსირდა შეცდომა';
-            return response()->json($this->data, 500);
+            $this->error();
         }
 
-        return response()->json($this->data, 200);
+        return $this->getResponse();
     }
 }

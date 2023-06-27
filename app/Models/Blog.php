@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Helper\File;
+use App\Interfaces\ModelColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\ModelHelper;
 
-class Blog extends Model
+class Blog extends Model implements ModelColumns
 {
     use HasFactory, ModelHelper;
 
@@ -21,8 +22,8 @@ class Blog extends Model
         'category_id'
     ];
 
-    private static $main_table = 'blogs';
-    private static $translate_table = 'blog_translates';
+    private $main_table = 'blogs';
+    private $translate_table = 'blog_translates';
     private static $translates_class = 'App\Models\BlogTranslate';
     private static $current_class = __CLASS__;
     private static $gallery = 'App\Models\BlogImage';
@@ -30,15 +31,28 @@ class Blog extends Model
         'slider_to' => 'Y-m-d'
     ];
 
-    public function content(){
+    public function getMainColumns()
+    {
+        return $this->getTableColumns($this->main_table);
+    }
+
+    public function getTranslateColumns()
+    {
+        return $this->getTableColumns($this->translate_table);
+    }
+
+    public function content()
+    {
         return $this->hasMany(BlogTranslate::class, 'parent_id', 'id');
     }
 
-    public function gallery(){
+    public function gallery()
+    {
         return $this->hasMany(BlogImage::class, 'parent_id', 'id');
     }
 
-    public function getItem($id, $lang){
+    public function getItem($id, $lang)
+    {
         return $this->where('id', $id)
                     ->select('id', 'status', 'image', 'video', 'created_at')
                     ->with(
@@ -55,7 +69,8 @@ class Blog extends Model
                     ->first();
     }
 
-    public function getAll($lang = 'ka', $status = false, $category = false, $count = 50){
+    public function getAll($lang = 'ka', $status = false, $category = false, $count = 50)
+    {
         return $this->when($status, function ($query){
                         return $query->where('status', 1);
                     })
@@ -70,7 +85,8 @@ class Blog extends Model
                     ->paginate($count);
     }
 
-    public function deleteImage(){
+    public function deleteImage()
+    {
         $file_remove = app(File::class)->removeFile($this->image);
         $this->image = null;
 
@@ -81,7 +97,8 @@ class Blog extends Model
         return false;
     }
 
-    public function deleteGalleryImage($request){
+    public function deleteGalleryImage($request)
+    {
         $gallery = self::$gallery::where('id', $request->image_id)->where('parent_id', $this->id)->first();
         if($gallery && app(File::class)->removeFile($gallery->image)){
             return $gallery->delete();

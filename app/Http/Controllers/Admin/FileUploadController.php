@@ -24,6 +24,6 @@ class FileUploadController extends Controller
 
         $data['file'] = env('APP_URL') . '/' . $file;
 
-        return response()->json($data, 200);
+        return response()->json($data, $this->status_code);
     }
 }

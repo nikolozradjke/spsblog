@@ -43,7 +43,7 @@ trait ModelHelper
             'endpoint'
         ]);
 
-        $table_columns = $this->getTableColumns(self::$main_table);
+        $table_columns = $this->getMainColumns();
 
         foreach ($request_keys as $key => $value){
             if(in_array($key, $table_columns))
@@ -70,7 +70,7 @@ trait ModelHelper
         if($item->save()){
             if(property_exists(self::$current_class, 'translates_class')){
                 $translates = $request->translates;
-                $translate_columns = $this->getTableColumns(self::$translate_table);
+                $translate_columns = $this->getTranslateColumns();
 
                 $storable_data = [];
                 $iterator = 0;
@@ -125,7 +125,7 @@ trait ModelHelper
             'sort',
             'endpoint'
         ]);
-        $table_columns = $this->getTableColumns(self::$main_table);
+        $table_columns = $this->getMainColumns();
 
         foreach ($request_keys as $key => $value){
             if(in_array($key, $table_columns))

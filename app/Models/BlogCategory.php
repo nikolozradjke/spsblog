@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Interfaces\ModelColumns;
 use App\Traits\ModelHelper;
 use App\Traits\Sortable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BlogCategory extends Model
+class BlogCategory extends Model implements ModelColumns
 {
     use HasFactory, Sortable;
     use ModelHelper{
@@ -16,17 +17,29 @@ class BlogCategory extends Model
 
     protected $fillable = ['status', 'image', 'video'];
 
-    private static $main_table = 'blog_categories';
-    private static $translate_table = 'blog_category_translates';
+    private $main_table = 'blog_categories';
+    private $translate_table = 'blog_category_translates';
     private static $translates_class = 'App\Models\BlogCategoryTranslate';
     private static $current_class = __CLASS__;
     private static $sortable = true;
 
-    public function content(){
+    public function getMainColumns()
+    {
+        return $this->getTableColumns($this->main_table);
+    }
+
+    public function getTranslateColumns()
+    {
+        return $this->getTableColumns($this->translate_table);
+    }
+
+    public function content()
+    {
         return $this->hasMany(BlogCategoryTranslate::class, 'parent_id', 'id');
     }
 
-    public function getItem($id, $lang){
+    public function getItem($id, $lang)
+    {
         return $this->where('id', $id)
                     ->select('id', 'status', 'slug', 'created_at')
                     ->with(
@@ -40,7 +53,8 @@ class BlogCategory extends Model
                     ->first();
     }
 
-    public function getAll($lang = 'ka', $status = false){
+    public function getAll($lang = 'ka', $status = false)
+    {
         return $this->when($status, function ($query){
                         return $query->where('status', 1);
                     })
@@ -52,7 +66,8 @@ class BlogCategory extends Model
                     ->get();
     }
 
-    public function add($request){
+    public function add($request)
+    {
         $item = new self::$current_class;
         $item->sort = $this->addSort();
         
