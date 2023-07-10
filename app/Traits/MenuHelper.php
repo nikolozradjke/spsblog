@@ -7,6 +7,8 @@ use App\Models\MenuCategory;
 
 trait MenuHelper
 {
+    use GetLocales;
+
     private $request;
     private $menu_cat;
 
@@ -44,6 +46,15 @@ trait MenuHelper
                 'message' => "შეავსეთ ყველა აუცილებელი ველი! $column"
             ], 400));
         }
-        return [$column => $this->request->$column];
+        $response = [];
+        foreach($this->getLocales() as $lang){
+            if(isset($this->request->$column[$lang])){
+                $response[$this->menu_cat->column][$lang] = $this->request->$column[$lang];
+            }else{
+                $response[$this->menu_cat->column][$lang] = $this->request->$column['ka'];
+            }
+        }
+
+        return $response;
     }
 }

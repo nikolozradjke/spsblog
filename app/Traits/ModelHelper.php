@@ -6,10 +6,7 @@ use App\Helper\File;
 
 trait ModelHelper
 {
-
-    public function getLocales(){
-        return array_keys(\LaravelLocalization::getSupportedLocales());
-    }
+    use GetLocales;
 
     public function getTableColumns($table) {
         $all_columns = $this->getConnection()->getSchemaBuilder()->getColumnListing($table);
@@ -29,6 +26,16 @@ trait ModelHelper
         }
 
         return array_values(array_diff($all_columns, $not_needed_columns));
+    }
+
+    public function getMainColumns()
+    {
+        return $this->getTableColumns($this->main_table);
+    }
+
+    public function getTranslateColumns()
+    {
+        return $this->getTableColumns($this->translate_table);
     }
 
     public function add($request, $item = null, $additional_data = null){
@@ -157,11 +164,11 @@ trait ModelHelper
                         foreach($translates[$lang] as $column => $content){
                             $updatable[$lang][$column] = is_null($content) ? $translates['ka'][$column] : $content;
                         }
-                        if(property_exists(self::$current_class, 'optional_column')){
-                            $updatable[$lang][self::$optional_column] = null;
+                        if(property_exists(self::$current_class, 'optional_column')  || property_exists(self::$current_class, 'translate_media')){
+                            // $updatable[$lang][self::$optional_column] = null;
                             if(gettype($additional_data) == 'array'){
                                 foreach($additional_data as $column => $items){
-                                    $updatable[$lang][$column] = isset($items[$lang]) ? $items[$lang] : $items['ka'];
+                                    $updatable[$lang][$column] = isset($items[$lang]) ? $items[$lang] : null;
                                 } 
                             }
                         }

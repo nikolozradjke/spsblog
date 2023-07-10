@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Client\BlogController as ClientBlogController;
 use App\Http\Controllers\Admin\FileUploadController;
+use App\Http\Controllers\Admin\ContactInfoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +60,12 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::put('/update/{menu}', [MenuController::class, 'update']);
             Route::post('/sort', [MenuController::class, 'sort']);
             Route::delete('/delete/{menu}', [MenuController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'contact-info'], function(){
+            Route::get('/', [ContactInfoController::class, 'index']);
+            Route::get('/columns', [ContactInfoController::class, 'getColumns']);
+            Route::put('/update/{contact}', [ContactInfoController::class, 'update']);
         });
     });
 });

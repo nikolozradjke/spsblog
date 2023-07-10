@@ -19,7 +19,8 @@ class Blog extends Model implements ModelColumns
         'status',
         'image',
         'video',
-        'category_id'
+        'category_id',
+        'slug'
     ];
 
     private $main_table = 'blogs';
@@ -30,16 +31,6 @@ class Blog extends Model implements ModelColumns
     private static $date_columns = [
         'slider_to' => 'Y-m-d'
     ];
-
-    public function getMainColumns()
-    {
-        return $this->getTableColumns($this->main_table);
-    }
-
-    public function getTranslateColumns()
-    {
-        return $this->getTableColumns($this->translate_table);
-    }
 
     public function content()
     {

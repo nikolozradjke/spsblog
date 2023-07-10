@@ -44,6 +44,10 @@ class MenuCategorySeeder extends Seeder
             ]
         ];
 
+        $count = MenuCategory::where('id', 1)->exists();
+
+        if(!$count)
+
         MenuCategory::insert($items);
     }
 }

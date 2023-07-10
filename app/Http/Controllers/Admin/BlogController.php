@@ -16,11 +16,11 @@ class BlogController extends Controller
     public function __construct()
     {
         $this->model = new Blog();
-        $this->main_columns = $this->model->getTableColumns(self::$main_table);
+        $this->main_columns = $this->model->getMainColumns();
         if(self::$gallery){
             $this->main_columns[] = 'gallery';
         }
-        $this->translate_columns = $this->model->getTableColumns(self::$translate_table);
+        $this->translate_columns = $this->model->getTranslateColumns();
         $this->data['message'] = 'Success';
     }
 
