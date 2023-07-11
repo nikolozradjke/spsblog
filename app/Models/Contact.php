@@ -6,6 +6,7 @@ use App\Traits\ModelHelper;
 use App\Traits\TranslateMedia;
 use App\Interfaces\ModelColumns;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Contact extends Model implements ModelColumns
@@ -32,7 +33,7 @@ class Contact extends Model implements ModelColumns
     private static $current_class = __CLASS__;
     private $translate_media = ['logo'];
 
-    public function content()
+    public function content() :HasMany
     {
         return $this->hasMany(ContactTranslate::class, 'parent_id', 'id');
     }

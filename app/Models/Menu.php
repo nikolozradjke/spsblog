@@ -8,7 +8,7 @@ use App\Traits\ModelHelper;
 use App\Traits\Sortable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Menu extends Model implements ModelColumns
 {
@@ -34,17 +34,7 @@ class Menu extends Model implements ModelColumns
     private static $sortable = true;
     private static $optional_column = 'text';//ველი რომელიც არსებობს თარგმანების ცხრილში მაგრამ დამოკიდებულია მენიუს კატეგორიაზე
 
-    public function getMainColumns()
-    {
-        return $this->getTableColumns($this->main_table);
-    }
-
-    public function getTranslateColumns()
-    {
-        return $this->getTableColumns($this->translate_table);
-    }
-
-    public function content()
+    public function content() :HasMany
     {
         return $this->hasMany(MenuTranslate::class, 'parent_id', 'id');
     }

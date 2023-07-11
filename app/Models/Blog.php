@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use App\Helper\File;
-use App\Interfaces\ModelColumns;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\ModelHelper;
+use App\Interfaces\ModelColumns;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Blog extends Model implements ModelColumns
 {
@@ -32,7 +33,7 @@ class Blog extends Model implements ModelColumns
         'slider_to' => 'Y-m-d'
     ];
 
-    public function content()
+    public function content() :HasMany
     {
         return $this->hasMany(BlogTranslate::class, 'parent_id', 'id');
     }

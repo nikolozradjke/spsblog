@@ -7,6 +7,7 @@ use App\Traits\ModelHelper;
 use App\Traits\Sortable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BlogCategory extends Model implements ModelColumns
 {
@@ -23,17 +24,7 @@ class BlogCategory extends Model implements ModelColumns
     private static $current_class = __CLASS__;
     private static $sortable = true;
 
-    public function getMainColumns()
-    {
-        return $this->getTableColumns($this->main_table);
-    }
-
-    public function getTranslateColumns()
-    {
-        return $this->getTableColumns($this->translate_table);
-    }
-
-    public function content()
+    public function content() :HasMany
     {
         return $this->hasMany(BlogCategoryTranslate::class, 'parent_id', 'id');
     }
